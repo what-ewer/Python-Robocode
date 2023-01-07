@@ -16,6 +16,12 @@ from robot import Robot
 from RobotInfo import RobotInfo
 from statistic import statistic
 
+from qValueStore import BATCH_SIZE, QValueStore
+
+
+sim_data_queue = []
+qStore = None
+
 class MainWindow(QMainWindow, Ui_MainWindow):
     """
     Class documentation goes here.
@@ -30,6 +36,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.timer = QTimer()
         self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.tableWidget.hide()
+        self.qStore = QValueStore()
+        qStore = self.qStore
         
     
     @pyqtSlot()
@@ -47,6 +55,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             print("No last arena found.")
 
         self.setUpBattle(dico["width"] , dico["height"], dico["botList"] )
+
+
+    def learn(self, i):
+        if len(sim_data_queue) >= BATCH_SIZE:
+            self.qStore.update(sim_data_queue[:BATCH_SIZE])
         
     def setUpBattle(self, width, height, botList):
         self.tableWidget.clearContents()
@@ -78,7 +91,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.graphicsView.setScene(self.scene)
         self.scene.AddRobots(self.botList)
         self.timer.timeout.connect(self.scene.advance)
+        self.timer.timeout.connect(self.learn)
         self.timer.start((self.horizontalSlider.value()**2)/100.0)
+        # self.timer.start(0)
         self.resizeEvent()
     
     @pyqtSlot(int)
@@ -87,6 +102,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         Slot documentation goes here.
         """
         self.timer.setInterval((value**2)/100.0)
+        # self.timer.setInterval(0)
+
     
     @pyqtSlot()
     def on_actionNew_triggered(self):
@@ -133,7 +150,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.sceneMenu.setSceneRect(0, 0, 170, l*80)
         p.setPos(0, (l -1)*80)
         
-    def chooseAction(self):
+    def onBattleFinish(self):
         if self.countBattle >= self.spinBox.value():
             "Menu Statistic"
             self.graphicsView.hide()

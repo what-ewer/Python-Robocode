@@ -69,7 +69,7 @@ class Graph(QGraphicsScene):
                 
             self.Parent.statisticDico[repr(self.deadBots[i])].points += i
                 
-        self.Parent.chooseAction()       
+        self.Parent.onBattleFinish()       
 
                     
     def setTiles(self):

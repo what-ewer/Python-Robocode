@@ -9,9 +9,14 @@ sys.path.append(os.getcwd() + "/robotImages")
 sys.path.append(os.getcwd() + "/Robots")
 from window import MainWindow
 from PyQt5.QtWidgets import QApplication
+from PyQt5.QtGui import QSurfaceFormat
 
 
 if __name__ == "__main__":
+
+   fmt = QSurfaceFormat()
+   fmt.setSwapInterval(0)
+   QSurfaceFormat.setDefaultFormat(fmt)
 
    app = QApplication(sys.argv)
    app.setApplicationName("Python-Robocode")
