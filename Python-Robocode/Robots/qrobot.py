@@ -4,8 +4,12 @@
 from robot import Robot #Import a base Robot
 import numpy as np
 import math
-from GUI.window import sim_data_queue, qStore
-from torch.nn import Softmax
+import importlib
+gui_window = importlib.import_module("GUI.window")
+qStore = gui_window.qStore
+sim_data_queue = gui_window.sim_data_queue
+# from GUI.window import sim_data_queue, qStore
+from scipy.special import softmax
 
 class QRobot(Robot): #Create a Robot
     
@@ -109,23 +113,23 @@ class QRobot(Robot): #Create a Robot
         HP_WEIGHT = 2.0
         ENEMIES_WEIGHT = 1.0
         
-        alive_bots = len(self.__parent.aliveBots)
-        dead_bots = len(self.__parent.deadBots)
+        alive_bots = len(self._Robot__parent.aliveBots)
+        dead_bots = len(self._Robot__parent.deadBots)
         total_bots = alive_bots + dead_bots
 
-        reward = (self.__health/100)*HP_WEIGHT + (dead_bots/(total_bots-1))*ENEMIES_WEIGHT if self.__health > 0 else 0
+        reward = (self._Robot__health/100)*HP_WEIGHT + (dead_bots/(total_bots-1))*ENEMIES_WEIGHT if self._Robot__health > 0 else 0
 
         return reward
     
     def run(self): #NECESARY FOR THE GAME  main loop to command the bot
         state_t = self.normalize_state(self.get_observation())
-        action_p = qStore.get_action_probas(state_t)
+        action_p = qStore.get_q(state_t)
 
-        move = np.random.choice(3, p=Softmax(action_p[0:3]))  # 0-don't move, 1-left, 2-right
-        rotate_robot = np.random.choice(3, p=Softmax(action_p[3:6])) # 0-don't rotate, 1-left, 2-right
-        rotate_gun = np.random.choice(3, p=Softmax(action_p[6:9]))  # 0-don't rotate, 1-left, 2-right
-        rotate_radar = np.random.choice(3, p=Softmax(action_p[9:12]))  # 0-don't rotate, 1-left, 2-right
-        shoot =  np.random.choice(2, p=Softmax(action_p[12:14]))  # 0-don't shoot, 1-shoot
+        move = np.random.choice(3, p=softmax(action_p[0:3]))  # 0-don't move, 1-left, 2-right
+        rotate_robot = np.random.choice(3, p=softmax(action_p[3:6])) # 0-don't rotate, 1-left, 2-right
+        rotate_gun = np.random.choice(3, p=softmax(action_p[6:9]))  # 0-don't rotate, 1-left, 2-right
+        rotate_radar = np.random.choice(3, p=softmax(action_p[9:12]))  # 0-don't rotate, 1-left, 2-right
+        shoot =  np.random.choice(2, p=softmax(action_p[12:14]))  # 0-don't shoot, 1-shoot
 
         if move == 0: # don't move
             pass
@@ -242,7 +246,7 @@ class QRobot(Robot): #Create a Robot
         
     def onRobotDeath(self):#NECESARY FOR THE GAME
         """When my bot die"""
-        self.rPrint (f"damn I'm Dead - attempt {self.attempt_no}")
+        self.rPrint (f"damn I'm Dead")
     
     def onTargetSpotted(self, botId, botName, botPos):#NECESARY FOR THE GAME
         "when the bot see another one"

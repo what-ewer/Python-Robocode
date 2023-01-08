@@ -20,7 +20,7 @@ DEVICE = "cpu"
 BATCH_SIZE = 32
 
 # Qnet params
-NUM_ACTIONS = 13
+NUM_ACTIONS = 14
 NET_CLASS = FCDQN
 NET_PARAMS = {
     'output_size': NUM_ACTIONS,
@@ -53,7 +53,7 @@ def map2prob(qvalues: np.ndarray) -> np.ndarray:
 class QValueStore():
 
     def __init__(self):
-        pass
+        self.buildModel()
 
     def buildModel(self,):
         self.Qnet = NET_CLASS(input_size=STATE_SHAPE, **NET_PARAMS).to(DEVICE)
@@ -98,11 +98,11 @@ class QValueStore():
         self.optimizer.step()
 
 
-    def get_action(self,state):
+    def get_q(self,state):
         with torch.no_grad():
             qvalues = self.Qnet(torch.Tensor(state).to(DEVICE)).numpy()
-            p = map2prob(qvalues=qvalues)
-        return 
+            # p = map2prob(qvalues=qvalues)
+        return qvalues
 
         
                     
