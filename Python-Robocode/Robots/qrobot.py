@@ -5,9 +5,9 @@ from robot import Robot #Import a base Robot
 import numpy as np
 import math
 import importlib
-gui_window = importlib.import_module("GUI.window")
-qStore = gui_window.qStore
-sim_data_queue = gui_window.sim_data_queue
+# gui_window = importlib.import_module("GUI.window")
+# qStore = gui_window.qStore
+# sim_data_queue = gui_window.sim_data_queue
 # from GUI.window import sim_data_queue, qStore
 from scipy.special import softmax
 
@@ -41,7 +41,7 @@ class QRobot(Robot): #Create a Robot
         self.setColor(160, 2, 199)
         self.setGunColor(255, 255, 38)
         self.setRadarColor(255, 178, 196)
-        self.setBulletsColor(114, 0, 0)
+        self.setBulletsColor(255, 255, 255)
         
         #get the map size
         size = self.getMapSize() #get the map size
@@ -122,14 +122,18 @@ class QRobot(Robot): #Create a Robot
         return reward
     
     def run(self): #NECESARY FOR THE GAME  main loop to command the bot
+        window_parent = self._Robot__parent.Parent
         state_t = self.normalize_state(self.get_observation())
-        action_p = qStore.get_q(state_t)
+        action_p = window_parent.qStore.get_q(state_t)
+
+        print(action_p)
 
         move = np.random.choice(3, p=softmax(action_p[0:3]))  # 0-don't move, 1-left, 2-right
         rotate_robot = np.random.choice(3, p=softmax(action_p[3:6])) # 0-don't rotate, 1-left, 2-right
         rotate_gun = np.random.choice(3, p=softmax(action_p[6:9]))  # 0-don't rotate, 1-left, 2-right
         rotate_radar = np.random.choice(3, p=softmax(action_p[9:12]))  # 0-don't rotate, 1-left, 2-right
         shoot =  np.random.choice(2, p=softmax(action_p[12:14]))  # 0-don't shoot, 1-shoot
+        # print(action_p)
 
         if move == 0: # don't move
             pass
@@ -196,7 +200,7 @@ class QRobot(Robot): #Create a Robot
         state_t_plus_1= self.normalize_state(self.get_observation())
 
         #put data necessary to train on queue
-        sim_data_queue.append((state_t, action_t, reward_t, state_t_plus_1, False))
+        window_parent.sim_data_queue.append((state_t, action_t, reward_t, state_t_plus_1, False))
 
         
 

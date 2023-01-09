@@ -15,7 +15,7 @@ np.random.seed(7)
 torch.manual_seed(7)
 
 
-GAMMA = 0.5
+GAMMA = 0
 DEVICE = "cpu"
 BATCH_SIZE = 32
 
@@ -28,7 +28,7 @@ NET_PARAMS = {
 }
 OPTIMIZER_CLASS = torch.optim.Adam
 OPTIMIZER_PARAMS = {
-    'lr': 0.3, 
+    'lr': 0.4, 
     # 'alpha': 0.95, 
     # 'momentum': 0.95, 
     # 'eps': 0.01
@@ -78,21 +78,24 @@ class QValueStore():
         with torch.no_grad():
             _qvalues_next_all = self.Qnet(_next_states)
 
-        losses = []
-        for i in range(_actions.shape[1]):
+        losses = torch.zeros(_actions.shape[1])
+        for i in range(1, _actions.shape[1]):
             _action = _actions[:,i]
 
             _qvalues_actions = _qvalues_all[np.arange(_actions.shape[0]), _action]
             with torch.no_grad():
                 ss = subaction_ranges[i-1]
                 se = subaction_ranges[i]
+                # print(_qvalues_next_all[:,ss:se])
+                # print(ss, se)
                 _qvalues_next_max = torch.max(_qvalues_next_all[:,ss:se], axis=1)[0]
                 _qvalues_next_max[_dones] = 0
 
                 _qvalues_expected = _rewards + GAMMA * _qvalues_next_max
             
             _loss = self.loss(_qvalues_expected, _qvalues_actions)
-            losses.append(_loss)
+            losses[i] = _loss
+            # losses.append(_loss)
         _losses = torch.sum(losses)
         _losses.backward()
         self.optimizer.step()

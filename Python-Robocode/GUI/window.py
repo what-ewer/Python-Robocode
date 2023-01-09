@@ -19,8 +19,6 @@ from statistic import statistic
 from qValueStore import BATCH_SIZE, QValueStore
 
 
-sim_data_queue = []
-qStore = QValueStore()
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     """
@@ -36,6 +34,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.timer = QTimer()
         self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.tableWidget.hide()
+        self.sim_data_queue = []
+        self.qStore = QValueStore()
         # qStore = QValueStore()
         # self.qStore = QValueStore()
         # qStore = self.qStore
@@ -59,8 +59,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
     def learn(self):
-        if len(sim_data_queue) >= BATCH_SIZE:
-            qStore.update(sim_data_queue[:BATCH_SIZE])
+        # print(sim_data_queue)
+        if len(self.sim_data_queue) >= BATCH_SIZE:
+            self.qStore.update(self.sim_data_queue[:BATCH_SIZE])
+            self.sim_data_queue = self.sim_data_queue[BATCH_SIZE:]
             # self.qStore.update(sim_data_queue[:BATCH_SIZE])
         
     def setUpBattle(self, width, height, botList):
