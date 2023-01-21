@@ -9,7 +9,6 @@ from PyQt5.QtCore import QPointF, QRectF
 
 from robot import Robot
 from outPrint import outPrint
-
 class Graph(QGraphicsScene):
     
     def __init__(self,  parent, width,  height):
@@ -62,10 +61,23 @@ class Graph(QGraphicsScene):
             print("N° {}:{}".format(j - i, self.deadBots[i]))
             if j-i == 1: #first place
                 self.Parent.statisticDico[repr(self.deadBots[i])].first += 1
+                if str(self.deadBots[i]) == 'QRobot':
+                    self.Parent.scores[-1] += 50
+                    self.Parent.positions.append(1)
             if j-i == 2: #2nd place
                 self.Parent.statisticDico[repr(self.deadBots[i])].second += 1
+                if str(self.deadBots[i]) == 'QRobot':
+                    self.Parent.scores[-1] += 30
+                    self.Parent.positions.append(2)
             if j-i ==3:#3rd place
                 self.Parent.statisticDico[repr(self.deadBots[i])].third += 1
+                if str(self.deadBots[i]) == 'QRobot':
+                    self.Parent.scores[-1] += 10
+                    self.Parent.positions.append(3)
+            if j-i ==4:#4th place
+                self.Parent.statisticDico[repr(self.deadBots[i])].third += 1
+                if str(self.deadBots[i]) == 'QRobot':
+                    self.Parent.positions.append(4)
                 
             self.Parent.statisticDico[repr(self.deadBots[i])].points += i
                 

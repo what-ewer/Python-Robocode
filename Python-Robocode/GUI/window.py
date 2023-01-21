@@ -15,6 +15,9 @@ from battle import Battle
 from robot import Robot
 from RobotInfo import RobotInfo
 from statistic import statistic
+from collections import defaultdict
+import numpy as np
+import dill
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     """
@@ -30,6 +33,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.timer = QTimer()
         self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.tableWidget.hide()
+        self.game_no = 0
+        self.scores = []
+        self.positions = []
+        self.attempt_no = 1
+        learn = True
+        if learn:
+            self.knowledge = {
+                i: defaultdict(lambda: np.random.random(1))
+                for i in range(3)
+            }
+        else:
+            with open('knowledge.dill', 'rb') as f:
+                self.knowledge = dill.load(f)
         
     
     @pyqtSlot()
